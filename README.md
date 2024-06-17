@@ -1,3 +1,3 @@
 # API Rate Limiting Protector
 
-Protect API calls by keeping subsequent requests under a specified rate limit, using a sliding window algorithm.
+Protect your API calls by enforcing a specified rate limit using a sliding window algorithm.
