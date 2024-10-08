@@ -1,5 +1,5 @@
+import asyncio
 import logging
-from asyncio import sleep
 from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse
 
@@ -41,7 +41,7 @@ async def root(
 
     while retries < settings.max_retries:
         previous_requests = np.array(await retrieve_session(session), np.datetime64)
-        current_date = datetime.now(timezone.utc)
+        current_date = datetime.now(timezone.utc).replace(tzinfo=None)
         start_of_period = np.datetime64(current_date - period)
         requests_in_period = np.sort(
             previous_requests[previous_requests > start_of_period]
@@ -64,16 +64,19 @@ async def root(
                     time_left_of_period / requests_remaining_for_period
                 )
 
-            await update_session(
-                session,
-                current_date + timedelta(seconds=seconds_until_new_request),
-                period,
-            )
-
             logging.info(f"waiting for {seconds_until_new_request} seconds")
-            await sleep(seconds_until_new_request)
+
+            await asyncio.gather(
+                update_session(
+                    session,
+                    current_date + timedelta(seconds=seconds_until_new_request),
+                    limit,
+                    period,
+                ),
+                asyncio.sleep(seconds_until_new_request),
+            )
         else:
-            await update_session(session, current_date, period)
+            await update_session(session, current_date, limit, period)
 
         async with aiohttp.ClientSession() as session:
             async with session.get(

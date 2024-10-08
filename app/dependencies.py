@@ -1,25 +1,18 @@
-from urllib.parse import urlparse
+from typing import Annotated
 
-from fastapi import HTTPException, Query, Request, status
+from fastapi import HTTPException, Request, status
+from pydantic import AfterValidator, HttpUrl, PositiveInt
 
 from app.config import TIME_PERIODS
 
 
-def valid_endpoint(request: Request, endpoint: str):
-    parsed_url = urlparse(endpoint)
-
-    if not all([parsed_url.scheme, parsed_url.netloc]):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid Endpoint Provided",
-        )
-
+def valid_endpoint(request: Request, endpoint: Annotated[HttpUrl, AfterValidator(str)]):
     request.query_params._dict.pop("endpoint", None)
 
     return endpoint
 
 
-def valid_limit(request: Request, limit: int = Query(..., gt=0)):
+def valid_limit(request: Request, limit: PositiveInt):
     request.query_params._dict.pop("limit", None)
 
     return limit

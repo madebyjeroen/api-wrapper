@@ -7,10 +7,11 @@ from app.config import settings
 redis = redis.from_url(str(settings.redis_url), decode_responses=True)
 
 
-async def update_session(key: str, date: datetime, lifetime: timedelta):
+async def update_session(key: str, date: datetime, limit: int, lifetime: timedelta):
     async with redis.pipeline() as pipe:
         await (
             pipe.rpush(key, date.isoformat())
+            .ltrim(key, -limit, -1)
             .expire(key, int(lifetime.total_seconds()))
             .execute()
         )

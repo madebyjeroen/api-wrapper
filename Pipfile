@@ -10,7 +10,7 @@ pydantic-settings = "*"
 redis = {extras = ["hiredis"], version = "*"}
 numpy = "*"
 asyncio = "*"
-aiohttp = "*"
+aiohttp = {extras = ["speedups"], version = "*"}
 xxhash = "*"
 
 [dev-packages]

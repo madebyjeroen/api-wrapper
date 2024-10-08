@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from pydantic import PositiveInt, RedisDsn
+from pydantic import NonNegativeInt, RedisDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 TIME_PERIODS = {
@@ -17,7 +17,7 @@ FORBIDDEN_HEADERS = ["host", "content-length", "connection"]
 
 class Settings(BaseSettings):
     redis_url: RedisDsn
-    max_retries: PositiveInt = 3
+    max_retries: NonNegativeInt = 3
 
     model_config = SettingsConfigDict(env_file=".env")
 
